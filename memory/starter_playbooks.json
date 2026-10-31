@@ -1,0 +1,222 @@
+[
+  {
+    "id": "st_001",
+    "key": "silent_dropper",
+    "genes": [
+      0.000322,
+      1.0,
+      0.08206,
+      0.358675,
+      0.352623,
+      0.950457,
+      0.968711,
+      0.081221,
+      0.149986,
+      1.0
+    ],
+    "fitness": 93.71875,
+    "generations": 15,
+    "times_used": 3,
+    "successes": 3,
+    "created_tick": 0,
+    "origin": "starter"
+  },
+  {
+    "id": "st_002",
+    "key": "queue_overflow",
+    "genes": [
+      0.010163,
+      0.241626,
+      0.275478,
+      0.115753,
+      0.776172,
+      0.004329,
+      0.273509,
+      0.266785,
+      0.445249,
+      0.742752
+    ],
+    "fitness": 96.375,
+    "generations": 8,
+    "times_used": 3,
+    "successes": 3,
+    "created_tick": 0,
+    "origin": "starter"
+  },
+  {
+    "id": "st_003",
+    "key": "data_corruption",
+    "genes": [
+      0.0,
+      0.675973,
+      0.652602,
+      0.032046,
+      0.078038,
+      0.536438,
+      0.980373,
+      0.63061,
+      1.0,
+      0.87215
+    ],
+    "fitness": 76.91875,
+    "generations": 9,
+    "times_used": 3,
+    "successes": 3,
+    "created_tick": 0,
+    "origin": "starter"
+  },
+  {
+    "id": "st_004",
+    "key": "workflow_deadlock",
+    "genes": [
+      0.0,
+      0.655901,
+      0.816313,
+      0.991558,
+      0.316623,
+      0.840742,
+      0.040966,
+      0.667578,
+      0.99828,
+      0.547591
+    ],
+    "fitness": 76.84375,
+    "generations": 9,
+    "times_used": 3,
+    "successes": 3,
+    "created_tick": 0,
+    "origin": "starter"
+  },
+  {
+    "id": "st_005",
+    "key": "queue_overflow+silent_dropper",
+    "genes": [
+      0.008735,
+      0.908479,
+      0.530035,
+      0.0,
+      0.620936,
+      0.239876,
+      1.0,
+      0.0,
+      0.244492,
+      0.55723
+    ],
+    "fitness": 88.890625,
+    "generations": 18,
+    "times_used": 3,
+    "successes": 3,
+    "created_tick": 0,
+    "origin": "starter"
+  },
+  {
+    "id": "st_006",
+    "key": "data_corruption+silent_dropper",
+    "genes": [
+      0.0,
+      0.675973,
+      0.652602,
+      0.032046,
+      0.078038,
+      0.536438,
+      0.980373,
+      0.63061,
+      1.0,
+      0.87215
+    ],
+    "fitness": 88.75,
+    "generations": 8,
+    "times_used": 3,
+    "successes": 3,
+    "created_tick": 0,
+    "origin": "starter"
+  },
+  {
+    "id": "st_007",
+    "key": "silent_dropper+workflow_deadlock",
+    "genes": [
+      0.075704,
+      0.947475,
+      0.805991,
+      0.0,
+      0.803307,
+      0.902204,
+      0.985439,
+      0.036501,
+      0.939912,
+      0.83705
+    ],
+    "fitness": 89.59375,
+    "generations": 13,
+    "times_used": 3,
+    "successes": 3,
+    "created_tick": 0,
+    "origin": "starter"
+  },
+  {
+    "id": "st_008",
+    "key": "data_corruption+queue_overflow",
+    "genes": [
+      0.0,
+      0.283995,
+      0.652602,
+      0.275992,
+      0.5477,
+      0.679009,
+      1.0,
+      0.514031,
+      0.794142,
+      1.0
+    ],
+    "fitness": 89.3125,
+    "generations": 11,
+    "times_used": 3,
+    "successes": 3,
+    "created_tick": 0,
+    "origin": "starter"
+  },
+  {
+    "id": "st_009",
+    "key": "queue_overflow+workflow_deadlock",
+    "genes": [
+      0.093894,
+      0.665325,
+      0.912366,
+      0.308186,
+      0.227482,
+      0.625889,
+      0.892469,
+      0.273127,
+      0.529328,
+      0.670566
+    ],
+    "fitness": 89.6875,
+    "generations": 13,
+    "times_used": 3,
+    "successes": 3,
+    "created_tick": 0,
+    "origin": "starter"
+  },
+  {
+    "id": "st_010",
+    "key": "data_corruption+workflow_deadlock",
+    "genes": [
+      0.0,
+      0.874713,
+      0.672964,
+      0.811051,
+      0.360356,
+      0.536438,
+      0.980373,
+      0.177461,
+      0.23539,
+      0.854273
+    ],
+    "fitness": 91.984375,
+    "generations": 16,
+    "times_used": 3,
+    "successes": 3,
+    "created_tick": 0,
+    "origin": "starter"
+  }
+]

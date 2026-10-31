@@ -1,0 +1,7 @@
+fastapi==0.115.6
+uvicorn==0.34.0
+websockets==14.1
+scikit-learn==1.6.1
+numpy==2.2.1
+joblib==1.4.2
+matplotlib==3.10.0

@@ -1,0 +1,469 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HackathonShop Recovery Console</title>
+<style>
+  /* Fonts are bundled in /static/fonts so the console works with no internet. */
+  @font-face { font-family:"Instrument Serif"; src:url("/static/fonts/instrument-serif-latin-400-normal.woff2") format("woff2"); font-weight:400; font-style:normal; font-display:swap; }
+  @font-face { font-family:"Instrument Serif"; src:url("/static/fonts/instrument-serif-latin-400-italic.woff2") format("woff2"); font-weight:400; font-style:italic; font-display:swap; }
+  @font-face { font-family:"Figtree"; src:url("/static/fonts/figtree-latin-wght-normal.woff2") format("woff2"); font-weight:300 900; font-display:swap; }
+  @font-face { font-family:"JetBrains Mono"; src:url("/static/fonts/jetbrains-mono-latin-400-normal.woff2") format("woff2"); font-weight:400; font-display:swap; }
+
+  :root {
+    --paper:#f8f5ee;       /* page */
+    --panel:#fffdf8;       /* panels */
+    --sand:#efeadd;        /* quiet fills */
+    --ink:#1b3a2d;         /* deep green ink */
+    --muted:#62756b;
+    --line:#d9d3c3;
+    --lemon:#eef27c;       /* highlighter */
+    --peri:#a9bdf7;        /* hand-drawn ring */
+    --ok:#2f7d52;   --ok-bg:#e1efdf;
+    --warn:#a86f12; --warn-bg:#f8ebc4;
+    --bad:#c8462e;  --bad-bg:#fadbd2;
+    --info:#3d5cc4; --info-bg:#dfe6fb;
+    --plum:#6f5584;
+    --serif:"Instrument Serif", Georgia, "Times New Roman", serif;
+    --sans:"Figtree", system-ui, "Segoe UI", Roboto, sans-serif;
+    --mono:"JetBrains Mono", ui-monospace, Consolas, monospace;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--paper); color:var(--ink); font:15px/1.55 var(--sans); }
+  :focus-visible { outline:2px solid var(--info); outline-offset:2px; }
+  .wrap { max-width:1360px; margin:0 auto; padding:0 28px; }
+
+  /* ---- status bar: a dark pill that floats while you scroll ---- */
+  .barwrap { position:sticky; top:12px; z-index:10; padding:12px 28px 0; max-width:1360px; margin:0 auto; }
+  .bar { display:flex; flex-wrap:wrap; align-items:center; gap:8px 20px; background:var(--ink); color:#f3efe3;
+         border-radius:999px; padding:9px 12px 9px 20px; box-shadow:0 6px 18px rgba(27,58,45,.18); }
+  .brand { display:flex; align-items:center; gap:9px; font:600 16px var(--sans); letter-spacing:.1px; }
+  .brand svg { width:30px; height:20px; stroke:#f3efe3; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+  .bar .spacer { flex:1; }
+  .badge { padding:4px 14px; border-radius:999px; font-weight:700; font-size:13px; text-transform:lowercase; }
+  .badge::first-letter { text-transform:uppercase; }
+  .MONITORING { background:rgba(125,223,156,.16); color:#8fe3ab; }
+  .PLANNING { background:rgba(242,194,91,.18); color:#f4cb70; }
+  .FIXING { background:rgba(169,189,247,.2); color:#b9c9fa; }
+  .PAGED { background:rgba(255,138,115,.2); color:#ffa08c; }
+  .health { display:flex; align-items:baseline; gap:6px; }
+  #healthNum { font:700 22px/1 var(--sans); font-variant-numeric:tabular-nums; min-width:2.2ch; text-align:right; }
+  #healthNum[data-lvl="ok"] { color:#8fe3ab; } #healthNum[data-lvl="warn"] { color:#f4cb70; } #healthNum[data-lvl="bad"] { color:#ff9a86; }
+  .bar .small { color:#b8c6bd; font-size:13px; }
+  .bar .small b { color:#f3efe3; }
+  .dot { width:9px; height:9px; border-radius:50%; background:#ff9a86; display:inline-block; }
+  .dot.on { background:#8fe3ab; }
+
+  /* ---- hero: one big sentence that says what the shop is doing ---- */
+  .hero { padding:46px 0 8px; }
+  #heroTitle { font:400 clamp(42px, 7.2vw, 96px)/1 var(--serif); letter-spacing:-.012em; margin:0; max-width:15em; text-wrap:balance; }
+  .ring { position:relative; display:inline-block; white-space:nowrap; }
+  .ring svg { position:absolute; left:-9%; top:-16%; width:118%; height:132%; overflow:visible; pointer-events:none; }
+  .ring path { fill:none; stroke:var(--peri); stroke-width:3.2; stroke-linecap:round; vector-effect:non-scaling-stroke; }
+  #detail { margin:20px 0 0; max-width:46ch; color:var(--muted); font-size:17px; line-height:1.5; }
+  .pulse { display:block; width:100%; height:96px; margin-top:6px; overflow:hidden; }
+  .pulse path { fill:none; stroke:var(--ink); stroke-width:2.6; stroke-linecap:round; stroke-linejoin:round; vector-effect:non-scaling-stroke; transition:stroke .4s; }
+  .pulse.bad path { stroke:var(--bad); }
+  .rule { height:9px; background:var(--ink); position:relative; margin:14px 0 26px; }
+  .rule::after { content:""; position:absolute; right:0; top:0; bottom:0; width:5.5%; background:var(--lemon); }
+
+  main { display:grid; gap:22px; padding-bottom:44px; grid-template-columns:1fr 1.4fr 1.3fr; align-items:start; }
+  @media (max-width:1100px) { main { grid-template-columns:1fr; } .wrap, .barwrap { padding-left:16px; padding-right:16px; } }
+  .panel { background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:20px 22px; min-width:0; }
+  .panel.flat { background:transparent; border:0; border-top:1px solid var(--line); border-radius:0; padding:20px 0 4px; }
+  h2 { font:400 30px/1.1 var(--serif); margin:0 0 4px; letter-spacing:-.005em; }
+  .note { color:var(--muted); font-size:13.5px; margin:0 0 12px; }
+
+  svg text { fill:var(--ink); font:600 13px var(--sans); }
+  svg .sub { fill:var(--muted); font:500 12px var(--sans); }
+  .node rect { stroke-width:1.5; transition:fill .3s, stroke .3s; }
+  .ok rect { fill:var(--ok-bg); stroke:var(--ink); }
+  .warn rect { fill:var(--warn-bg); stroke:var(--warn); }
+  .bad rect { fill:var(--bad-bg); stroke:var(--bad); }
+  .chips { display:flex; flex-wrap:wrap; gap:6px; margin:6px 0 2px; min-height:28px; align-items:center; }
+  .chip { padding:3px 12px; border-radius:999px; background:var(--bad-bg); color:var(--bad); font-size:13px; font-weight:700; }
+  .chip.good { background:var(--ok-bg); color:var(--ok); }
+  .chart-wrap { position:relative; height:230px; }
+  .chart-wrap.short { height:150px; }
+  #log { height:440px; overflow:auto; font:12.5px/1.55 var(--mono); background:var(--sand);
+         border-radius:10px; padding:10px 12px; }
+  .ln { padding:3px 0; border-bottom:1px dashed var(--line); }
+  .ln.incident { color:var(--bad); } .ln.action { color:var(--info); } .ln.verified { color:var(--ok); }
+  .ln.page { color:var(--warn); font-weight:700; } .ln.memory { color:var(--plum); } .ln.fault { color:var(--bad); font-weight:700; }
+  .ln.reason { color:#6f5a12; }
+  .ln.bad { color:var(--warn); } .ln.dry { color:#2d7380; } .ln.human { color:var(--ok); font-weight:700; } .ln.info { color:var(--muted); }
+  .bel { display:grid; grid-template-columns:118px 1fr 40px; gap:10px; align-items:center; font-size:13px; margin:5px 0; }
+  .bel .bar2 { height:7px; background:var(--sand); border-radius:5px; overflow:hidden; }
+  .bel .bar2 i { display:block; height:100%; background:var(--plum); transition:width .3s; border-radius:5px; }
+  .bel.hot .bar2 i { background:var(--warn); }
+  .bel span:last-child { text-align:right; color:var(--muted); font-variant-numeric:tabular-nums; }
+  .legend { color:var(--muted); font-size:13px; margin-top:8px; }
+  .legend span { margin-right:14px; } .legend b { font-weight:800; }
+  .ground { color:var(--muted); font-size:13px; margin-top:12px; }
+
+  /* ---- controls dock: a big outlined pill, like a call-to-action bar ---- */
+  .dock { grid-column:span 2; border:2px solid var(--ink); border-radius:34px; padding:24px 28px 26px; background:var(--paper); }
+  .dock .controls { display:flex; flex-wrap:wrap; gap:8px; }
+  .row { display:flex; gap:12px 20px; align-items:center; flex-wrap:wrap; margin-top:14px; }
+  button { background:var(--panel); color:var(--ink); border:1.5px solid var(--ink); border-radius:999px;
+           padding:7px 16px; cursor:pointer; font:600 14px var(--sans); transition:background .12s; }
+  button:hover { background:var(--lemon); }
+  button.primary { background:var(--ink); color:#f3efe3; } button.primary:hover { background:#27503f; }
+  button.quiet { border-color:var(--line); } button.quiet:hover { border-color:var(--ink); }
+  button.warnbtn { border-color:var(--bad); color:var(--bad); } button.warnbtn:hover { background:var(--bad-bg); }
+  label { color:var(--muted); font-size:14px; display:flex; align-items:center; gap:7px; }
+  select, input[type=range], input[type=checkbox] { accent-color:var(--ink); }
+  select { background:var(--panel); color:var(--ink); border:1.5px solid var(--line); border-radius:999px; padding:5px 12px; font:inherit; }
+
+  table { width:100%; border-collapse:collapse; font-size:13.5px; }
+  th { text-align:left; color:var(--muted); font-weight:600; padding:5px 6px; border-bottom:1px solid var(--ink); }
+  td { padding:7px 6px; border-bottom:1px solid var(--line); font-variant-numeric:tabular-nums; }
+  #pbTable { font-size:12.5px; } #pbTable th, #pbTable td { padding-left:4px; padding-right:4px; }
+  #pbTable td:nth-child(2) { min-width:8em; }
+  .tall { grid-row:span 2; }
+  .span2 { grid-column:span 2; } @media (max-width:1100px){ .span2, .dock { grid-column:span 1; } .tall { grid-row:auto; } .dock { border-radius:26px; padding:20px; } }
+  #banner { display:none; margin:14px 0 0; padding:12px 16px; border-radius:12px; background:var(--bad-bg); color:var(--bad); border:1px solid #e3b4a8; }
+</style>
+</head>
+<body>
+<div class="barwrap">
+  <div class="bar">
+    <div class="brand">
+      <svg viewBox="0 0 30 20" aria-hidden="true"><path d="M2 15 C6 1, 15 1, 13 9 C11 17, 3 13, 9 7 C15 1, 25 5, 28 15"/></svg>
+      HackathonShop
+    </div>
+    <span id="phase" class="badge MONITORING">MONITORING</span>
+    <span class="spacer"></span>
+    <div class="health"><span id="healthNum" data-lvl="ok">--</span><span class="small">health out of 100</span></div>
+    <div class="small">tick <b id="tickNum">0</b></div>
+    <div class="small"><span id="conn" class="dot"></span> live</div>
+  </div>
+</div>
+
+<div class="wrap">
+  <div id="banner"></div>
+  <section class="hero">
+    <h1 id="heroTitle">The shop is running <span class="ring">smoothly<svg viewBox="0 0 200 60" preserveAspectRatio="none"><path d="M14 31 C 22 7, 150 1, 189 23 C 207 38, 122 59, 42 53 C 7 49, 3 27, 31 15"/></svg></span>.</h1>
+    <p id="detail">Connecting…</p>
+    <svg class="pulse" id="pulse" viewBox="0 0 1200 120" preserveAspectRatio="none" aria-hidden="true"><path id="pulsePath" d=""/></svg>
+    <div class="rule" aria-hidden="true"></div>
+  </section>
+
+  <main>
+    <section class="panel">
+      <h2>The shop</h2>
+      <p class="note">A part turns red when the agent's sensors say it is unhealthy.</p>
+      <svg id="diagram" viewBox="0 0 420 230" width="100%">
+        <defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M0 0L10 5L0 10z" fill="#1b3a2d"/></marker></defs>
+        <line x1="95" y1="60" x2="140" y2="60" stroke="#1b3a2d" stroke-width="1.6" marker-end="url(#ar)"/>
+        <line x1="235" y1="60" x2="280" y2="60" stroke="#1b3a2d" stroke-width="1.6" marker-end="url(#ar)"/>
+        <g id="n_orders" class="node ok"><rect x="5" y="25" width="90" height="70" rx="16"/>
+          <text x="50" y="52" text-anchor="middle">Orders</text><text id="t_orders" class="sub" x="50" y="72" text-anchor="middle">-</text></g>
+        <g id="n_queue" class="node ok"><rect x="140" y="25" width="95" height="70" rx="16"/>
+          <text x="187" y="52" text-anchor="middle">Queue</text><text id="t_queue" class="sub" x="187" y="72" text-anchor="middle">-</text></g>
+        <g id="n_payments" class="node ok"><rect x="280" y="25" width="130" height="70" rx="16"/>
+          <text x="345" y="52" text-anchor="middle">Payments</text><text id="t_payments" class="sub" x="345" y="72" text-anchor="middle">-</text></g>
+        <g id="n_sync" class="node ok"><rect x="30" y="135" width="170" height="70" rx="16"/>
+          <text x="115" y="162" text-anchor="middle">Data sync job</text><text id="t_sync" class="sub" x="115" y="182" text-anchor="middle">-</text></g>
+        <g id="n_workflow" class="node ok"><rect x="225" y="135" width="170" height="70" rx="16"/>
+          <text x="310" y="162" text-anchor="middle">Workflow engine</text><text id="t_workflow" class="sub" x="310" y="182" text-anchor="middle">-</text></g>
+      </svg>
+      <div class="note" style="margin-top:6px">What the diagnosis model thinks is wrong</div>
+      <div id="chips" class="chips"><span class="chip good">looks healthy</span></div>
+      <div class="note" style="margin-top:16px">What the agent believes is going on</div>
+      <div id="beliefs"></div>
+      <div id="ground" class="ground"></div>
+    </section>
+
+    <section class="panel">
+      <h2>Shop health over time</h2>
+      <p class="note">The line should stay above 80.</p>
+      <div class="chart-wrap"><canvas id="healthChart"></canvas></div>
+      <div class="legend">
+        <span><b style="color:#c8462e">F</b> fault injected</span>
+        <span><b style="color:#a86f12">I</b> incident declared</span>
+        <span><b style="color:#3d5cc4">A</b> fix applied</span>
+        <span><b style="color:#2f7d52">V</b> verified</span>
+        <span><b style="color:#6f5584">P</b> human paged</span>
+      </div>
+      <h2 style="margin-top:26px">How the fix evolved</h2>
+      <p class="note">Fills in only when the agent has to invent a new fix.</p>
+      <div class="chart-wrap short"><canvas id="evoChart"></canvas></div>
+    </section>
+
+    <section class="panel">
+      <h2>What the agent is doing</h2>
+      <p class="note">Every decision, in order.</p>
+      <div id="log"></div>
+    </section>
+
+    <section class="dock">
+      <h2>Break the shop</h2>
+      <p class="note">Pick a fault and watch the agent respond.</p>
+      <div class="controls" id="faultButtons"></div>
+      <div class="row">
+        <label>Severity <select id="severity"><option value="normal">normal</option><option value="harsh">harsh (held-out)</option></select></label>
+        <label><input type="checkbox" id="sticky"> root cause keeps returning (agent cannot fix it)</label>
+        <label><input type="checkbox" id="noise"> noisy sensors (jittery, stale readings, lost logs)</label>
+      </div>
+      <div class="row">
+        <button class="primary" id="btnHuman">A human fixes the root cause</button>
+        <label>Speed <input type="range" id="speed" min="1" max="30" value="5"> <b id="speedLbl">5</b> ticks per second</label>
+        <button class="quiet" id="btnPause">Pause</button>
+        <button class="quiet" id="btnReset">Reset shop, keep playbooks</button>
+        <button class="warnbtn" id="btnForget">Reset and forget playbooks</button>
+      </div>
+    </section>
+
+    <section class="panel tall">
+      <h2>Playbook library</h2>
+      <p class="note">Fixes the agent has learned or was given.</p>
+      <table id="pbTable"><thead><tr><th>id</th><th>problem</th><th>origin</th><th>fitness</th><th>gens</th><th>used</th><th>ok</th></tr></thead><tbody></tbody></table>
+      <div class="note" id="pbEmpty" style="margin-top:8px;display:none">Starter playbooks were trained offline. New ones appear here as the agent learns.</div>
+    </section>
+
+    <section class="panel flat span2">
+      <h2>Incidents</h2>
+      <table id="incTable"><thead><tr><th>#</th><th>problem</th><th>fix came from</th><th>thinking ticks</th><th>actions</th><th>outcome</th><th>ticks to recover</th></tr></thead><tbody></tbody></table>
+    </section>
+  </main>
+</div>
+
+<script src="/static/chart.umd.js"></script>
+<script>
+function showProblem(msg) { const b = document.getElementById("banner"); b.style.display = "block"; b.textContent = msg; }
+if (typeof Chart === "undefined") {
+  showProblem("The chart library did not load. Check that chart.umd.js is inside the static folder " +
+              "(open http://127.0.0.1:8000/static/chart.umd.js - you should see lots of code, not 'Not Found').");
+  window.Chart = function () { return { data:{labels:[],datasets:[{},{}]}, update(){} }; };
+  window.Chart.defaults = { font:{} };
+}
+Chart.defaults.font.family = '"Figtree", system-ui, sans-serif';
+Chart.defaults.font.size = 12;
+const MAXPTS = 160;
+const $ = id => document.getElementById(id);
+let ticks = [], health = [], marks = {};
+let curPhase = "MONITORING", curHealth = 100, curTick = 0;
+
+const markStyle = { fault:["F","#c8462e"], incident:["I","#a86f12"], action:["A","#3d5cc4"],
+                    verified:["V","#2f7d52"], page:["P","#6f5584"] };
+
+const marksPlugin = { id:"marks", afterDatasetsDraw(chart) {
+  const {ctx, chartArea, scales} = chart;
+  const labels = chart.data.labels;
+  ctx.save(); ctx.font = "800 11px Figtree, system-ui"; ctx.textAlign = "center";
+  labels.forEach((t, i) => {
+    const k = marks[t]; if (!k) return;
+    const [ch, col] = markStyle[k];
+    const x = scales.x.getPixelForValue(i);
+    ctx.strokeStyle = col; ctx.globalAlpha = .6; ctx.setLineDash([3,3]);
+    ctx.beginPath(); ctx.moveTo(x, chartArea.top + 12); ctx.lineTo(x, chartArea.bottom); ctx.stroke();
+    ctx.globalAlpha = 1; ctx.setLineDash([]); ctx.fillStyle = col; ctx.fillText(ch, x, chartArea.top + 9);
+  });
+  ctx.restore();
+}};
+
+const gridCol = "#e6e0d1", tickCol = "#62756b";
+const healthChart = new Chart($("healthChart"), {
+  type:"line", plugins:[marksPlugin],
+  data:{ labels:[], datasets:[
+    { label:"health", data:[], borderColor:"#1b3a2d", backgroundColor:"rgba(238,242,124,.28)", fill:true,
+      pointRadius:0, borderWidth:2.2, tension:.2 },
+    { label:"healthy from 80", data:[], borderColor:"#c8462e", borderDash:[6,5], pointRadius:0, borderWidth:1.2 }
+  ]},
+  options:{ animation:false, maintainAspectRatio:false,
+    scales:{ y:{ min:0, max:105, grid:{color:gridCol}, ticks:{color:tickCol} },
+             x:{ grid:{display:false}, ticks:{color:tickCol, maxTicksLimit:8} } },
+    plugins:{ legend:{ labels:{color:tickCol, boxWidth:12} } } }
+});
+const evoChart = new Chart($("evoChart"), {
+  type:"line",
+  data:{ labels:[], datasets:[
+    { label:"best", data:[], borderColor:"#6f5584", pointRadius:2, borderWidth:2 },
+    { label:"average", data:[], borderColor:"#9aa89f", pointRadius:0, borderWidth:1.5, borderDash:[4,4] }
+  ]},
+  options:{ animation:false, maintainAspectRatio:false,
+    scales:{ y:{ grid:{color:gridCol}, ticks:{color:tickCol} },
+             x:{ title:{display:true,text:"generation",color:tickCol}, grid:{display:false}, ticks:{color:tickCol} } },
+    plugins:{ legend:{ labels:{color:tickCol, boxWidth:12} } } }
+});
+
+function redrawHealth() {
+  while (ticks.length > MAXPTS) { ticks.shift(); health.shift(); }
+  healthChart.data.labels = ticks.slice();
+  healthChart.data.datasets[0].data = health.slice();
+  healthChart.data.datasets[1].data = ticks.map(() => 80);
+  healthChart.update();
+}
+
+/* ---- the hero sentence: says in plain words what the shop is doing now ---- */
+const RING = '<svg viewBox="0 0 200 60" preserveAspectRatio="none" aria-hidden="true"><path d="M14 31 C 22 7, 150 1, 189 23 C 207 38, 122 59, 42 53 C 7 49, 3 27, 31 15"/></svg>';
+const ring = w => `<span class="ring">${w}${RING}</span>`;
+let lastHero = "";
+function renderHero() {
+  let html;
+  if (curPhase === "PAGED") html = `The agent has called a ${ring("human")}.`;
+  else if (curPhase === "PLANNING") html = `Something broke. The agent is ${ring("choosing")} a fix.`;
+  else if (curPhase === "FIXING") html = `A fix is going in. Watching the shop ${ring("closely")}.`;
+  else if (curHealth < 80) html = `Health is dropping. The agent is ${ring("checking")}.`;
+  else html = `The shop is running ${ring("smoothly")}.`;
+  if (html !== lastHero) { $("heroTitle").innerHTML = html; lastHero = html; }
+}
+
+/* ---- the pulse line: calm when healthy, tangled when the shop is not ---- */
+function drawPulse() {
+  const chaos = Math.max(0, Math.min(1, (100 - curHealth) / 55));
+  const t = curTick;
+  let d = "";
+  for (let x = 0; x <= 1200; x += 6) {
+    const calm = 13 * (1 - chaos * 0.6) * Math.sin(x / 40 - t * 0.35);
+    const lx = chaos * 26 * Math.cos(x / 9 + t * 1.3);
+    const ly = chaos * 34 * Math.sin(x / 9 + t * 1.3) + chaos * 10 * Math.sin(x / 3.1 + t * 2.1);
+    d += (x ? "L" : "M") + (x + lx).toFixed(1) + " " + (60 + calm + ly).toFixed(1) + " ";
+  }
+  $("pulsePath").setAttribute("d", d);
+  $("pulse").classList.toggle("bad", curHealth < 80);
+}
+
+function setNode(id, level, text) {
+  $(id).setAttribute("class", "node " + level);
+  if (text !== undefined) $("t_" + id.slice(2)).textContent = text;
+}
+
+function updateDiagram(m) {
+  setNode("n_orders", "ok", m.orders_per_second.toFixed(1) + " orders/s");
+  const qLvl = m.queue_saturation > 0.9 ? "bad" : m.queue_saturation > 0.6 ? "warn" : "ok";
+  setNode("n_queue", qLvl, m.queue_depth + " / " + m.queue_capacity);
+  const pLvl = m.mismatch_rate > 0.05 ? "bad" : m.mismatch_rate > 0.02 ? "warn" : "ok";
+  setNode("n_payments", pLvl, "orders lost: " + (m.mismatch_rate * 100).toFixed(0) + "%");
+  const sLvl = m.integrity_score < 0.9 ? "bad" : m.integrity_score < 0.97 ? "warn" : "ok";
+  setNode("n_sync", sLvl, "clean records: " + (m.integrity_score * 100).toFixed(0) + "%");
+  const wLvl = m.jobs_stuck > 0 && m.stuck_duration >= 5 ? "bad" : m.jobs_stuck > 0 ? "warn" : "ok";
+  setNode("n_workflow", wLvl, m.jobs_stuck > 0 ? ("stuck job, " + m.stuck_duration + " ticks") : "flowing");
+}
+
+function setPhase(phase, detail) {
+  curPhase = phase;
+  const p = $("phase"); p.textContent = phase; p.className = "badge " + phase;
+  if (detail) $("detail").textContent = detail;
+  renderHero();
+}
+
+function addLog(tick, kind, text) {
+  const el = document.createElement("div"); el.className = "ln " + kind; el.textContent = text;
+  const box = $("log");
+  const stick = box.scrollTop + box.clientHeight >= box.scrollHeight - 30;
+  box.appendChild(el);
+  while (box.childNodes.length > 300) box.removeChild(box.firstChild);
+  if (stick) box.scrollTop = box.scrollHeight;
+}
+
+function updateState(s) {
+  setPhase(s.phase, s.detail);
+  $("speed").value = s.speed; $("speedLbl").textContent = s.speed;
+  $("btnPause").textContent = s.paused ? "Resume" : "Pause";
+  $("noise").checked = !!s.noisy;
+  const g = [];
+  if (s.injected.length) g.push("Faults injected so far (presenter view): " + s.injected.join("; "));
+  if (s.outage && s.outage.length) g.push("Tools out of service: " + s.outage.join(", "));
+  $("ground").textContent = g.join("  |  ");
+  const pb = $("pbTable").querySelector("tbody"); pb.innerHTML = "";
+  s.playbooks.forEach(r => {
+    pb.insertAdjacentHTML("beforeend",
+      `<tr><td>${r.id}</td><td>${r.key.replaceAll("_"," ").replaceAll("+"," + ")}</td><td>${r.origin||"learned"}</td><td>${r.fitness}</td><td>${r.generations}</td><td>${r.times_used}x</td><td>${Math.round(r.success_rate*100)}%</td></tr>`);
+  });
+  $("pbEmpty").style.display = s.playbooks.length ? "none" : "block";
+  const ib = $("incTable").querySelector("tbody"); ib.innerHTML = "";
+  s.incidents.forEach(i => {
+    const ttr = i.time_to_recover == null ? "-" : i.time_to_recover;
+    ib.insertAdjacentHTML("beforeend",
+      `<tr><td>${i.id}</td><td>${i.key.replaceAll("_"," ").replaceAll("+"," + ")}</td><td>${i.source || "-"}</td><td>${i.planning_ticks}</td><td>${i.actions.length}</td><td>${i.outcome || "open"}</td><td>${ttr}</td></tr>`);
+  });
+}
+
+const BEL_NAMES = { silent_dropper:"silent dropper", queue_overflow:"queue overload",
+  data_corruption:"data corruption", workflow_deadlock:"frozen workflow", unknown:"unexplained" };
+function renderBeliefs(b) {
+  $("beliefs").innerHTML = Object.keys(BEL_NAMES).map(k => {
+    const p = Math.round((b[k] || 0) * 100);
+    return `<div class="bel ${p >= 60 ? "hot" : ""}"><span>${BEL_NAMES[k]}</span><span class="bar2"><i style="width:${p}%"></i></span><span>${p}%</span></div>`;
+  }).join("");
+}
+
+function onMessage(msg) {
+  if (msg.type === "metrics") {
+    const m = msg.m;
+    ticks.push(m.tick); health.push(m.health_score);
+    redrawHealth();
+    curHealth = m.health_score; curTick = m.tick;
+    $("healthNum").textContent = m.health_score.toFixed(0);
+    $("healthNum").dataset.lvl = m.health_score >= 80 ? "ok" : m.health_score >= 55 ? "warn" : "bad";
+    $("tickNum").textContent = m.tick;
+    updateDiagram(m);
+    const chips = $("chips");
+    chips.innerHTML = msg.diagnosis.length
+      ? msg.diagnosis.map(d => `<span class="chip">${d.replaceAll("_"," ")}</span>`).join("")
+      : '<span class="chip good">looks healthy</span>';
+    setPhase(msg.phase, msg.detail);
+    drawPulse();
+    if (msg.beliefs) renderBeliefs(msg.beliefs);
+  } else if (msg.type === "evo") {
+    if (msg.generation === 1) { evoChart.data.labels = []; evoChart.data.datasets.forEach(d => d.data = []); }
+    evoChart.data.labels.push(msg.generation);
+    evoChart.data.datasets[0].data.push(msg.best);
+    evoChart.data.datasets[1].data.push(msg.avg);
+    evoChart.update();
+    setPhase("PLANNING", `Evolving a fix: generation ${msg.generation}, best fitness ${msg.best}`);
+  } else if (msg.type === "event") {
+    addLog(msg.tick, msg.kind, msg.text);
+    if (markStyle[msg.kind]) marks[msg.tick] = msg.kind;
+    if (msg.event === "incident_declared") marks[msg.tick] = "incident";
+  } else if (msg.type === "state") {
+    updateState(msg);
+  } else if (msg.type === "history") {
+    ticks = health.map(() => 0); ticks = []; health = msg.health.slice();
+    for (let i = 0; i < health.length; i++) ticks.push(msg.end_tick - health.length + 1 + i);
+    redrawHealth();
+  } else if (msg.type === "reset") {
+    ticks = []; health = []; marks = {}; $("log").innerHTML = ""; addLog(0, "info", HELLO);
+    evoChart.data.labels = []; evoChart.data.datasets.forEach(d => d.data = []); evoChart.update();
+    redrawHealth();
+  }
+}
+
+let socket;
+function connect() {
+  socket = new WebSocket((location.protocol === "https:" ? "wss://" : "ws://") + location.host + "/ws");
+  socket.onopen = () => { $("conn").classList.add("on"); $("banner").style.display = "none"; };
+  socket.onclose = () => { $("conn").classList.remove("on"); setTimeout(connect, 1500); };
+  socket.onerror = () => showProblem("Live connection to the server failed. Is the terminal running python main.py still open? Try refreshing the page.");
+  socket.onmessage = ev => onMessage(JSON.parse(ev.data));
+}
+
+async function send(body) {
+  await fetch("/api/command", { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body) });
+}
+
+fetch("/api/config").then(r => r.json()).then(cfg => {
+  const box = $("faultButtons");
+  Object.entries(cfg.faults).forEach(([key, label]) => {
+    const b = document.createElement("button"); b.textContent = label;
+    b.onclick = () => send({ cmd:"inject", fault:key, severity:$("severity").value, sticky:$("sticky").checked });
+    box.appendChild(b);
+  });
+});
+$("noise").onchange = e => send({ cmd:"noise", value:e.target.checked });
+$("btnHuman").onclick = () => send({ cmd:"fix_root_cause" });
+$("speed").oninput = e => { $("speedLbl").textContent = e.target.value; send({ cmd:"speed", value:+e.target.value }); };
+$("btnPause").onclick = () => { const p = $("btnPause").textContent === "Pause"; $("btnPause").textContent = p ? "Resume" : "Pause"; send({ cmd:"pause", value:p }); };
+$("btnReset").onclick = () => send({ cmd:"reset", forget:false });
+$("btnForget").onclick = () => send({ cmd:"reset", forget:true });
+const HELLO = "Shop is healthy, so the agent is just watching. Press a button under 'Break the shop' to start an incident.";
+addLog(0, "info", HELLO);
+drawPulse();
+connect();
+</script>
+</body>
+</html>

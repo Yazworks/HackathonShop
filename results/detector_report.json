@@ -1,0 +1,490 @@
+{
+  "in_distribution": {
+    "per_head": {
+      "silent_dropper": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 1200
+      },
+      "queue_overflow": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 1200
+      },
+      "data_corruption": {
+        "precision": 1.0,
+        "recall": 0.985,
+        "f1": 0.9924433249370277,
+        "support": 600
+      },
+      "workflow_deadlock": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 600
+      }
+    },
+    "macro_f1": 0.9981108312342569,
+    "exact_match": 0.9976923076923077,
+    "n": 3900,
+    "by_composition": {
+      "data_corruption": {
+        "exact_match": 0.985,
+        "n": 600
+      },
+      "healthy": {
+        "exact_match": 1.0,
+        "n": 900
+      },
+      "queue_overflow": {
+        "exact_match": 1.0,
+        "n": 600
+      },
+      "queue_overflow+silent_dropper": {
+        "exact_match": 1.0,
+        "n": 600
+      },
+      "silent_dropper": {
+        "exact_match": 1.0,
+        "n": 600
+      },
+      "workflow_deadlock": {
+        "exact_match": 1.0,
+        "n": 600
+      }
+    }
+  },
+  "heldout_severity": {
+    "per_head": {
+      "silent_dropper": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 1200
+      },
+      "queue_overflow": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 1200
+      },
+      "data_corruption": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 600
+      },
+      "workflow_deadlock": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 600
+      }
+    },
+    "macro_f1": 1.0,
+    "exact_match": 1.0,
+    "n": 3900,
+    "by_composition": {
+      "data_corruption": {
+        "exact_match": 1.0,
+        "n": 600
+      },
+      "healthy": {
+        "exact_match": 1.0,
+        "n": 900
+      },
+      "queue_overflow": {
+        "exact_match": 1.0,
+        "n": 600
+      },
+      "queue_overflow+silent_dropper": {
+        "exact_match": 1.0,
+        "n": 600
+      },
+      "silent_dropper": {
+        "exact_match": 1.0,
+        "n": 600
+      },
+      "workflow_deadlock": {
+        "exact_match": 1.0,
+        "n": 600
+      }
+    }
+  },
+  "mild_faults": {
+    "per_head": {
+      "silent_dropper": {
+        "precision": 1.0,
+        "recall": 0.97,
+        "f1": 0.9847715736040609,
+        "support": 1200
+      },
+      "queue_overflow": {
+        "precision": 1.0,
+        "recall": 0.9091666666666667,
+        "f1": 0.9524225229157574,
+        "support": 1200
+      },
+      "data_corruption": {
+        "precision": 1.0,
+        "recall": 0.8416666666666667,
+        "f1": 0.9140271493212669,
+        "support": 600
+      },
+      "workflow_deadlock": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 600
+      }
+    },
+    "macro_f1": 0.9628053114602713,
+    "exact_match": 0.9387179487179487,
+    "n": 3900,
+    "by_composition": {
+      "data_corruption": {
+        "exact_match": 0.8416666666666667,
+        "n": 600
+      },
+      "healthy": {
+        "exact_match": 1.0,
+        "n": 900
+      },
+      "queue_overflow": {
+        "exact_match": 0.925,
+        "n": 600
+      },
+      "queue_overflow+silent_dropper": {
+        "exact_match": 0.8833333333333333,
+        "n": 600
+      },
+      "silent_dropper": {
+        "exact_match": 0.9516666666666667,
+        "n": 600
+      },
+      "workflow_deadlock": {
+        "exact_match": 1.0,
+        "n": 600
+      }
+    }
+  },
+  "unseen_combinations": {
+    "per_head": {
+      "silent_dropper": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 960
+      },
+      "queue_overflow": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 960
+      },
+      "data_corruption": {
+        "precision": 1.0,
+        "recall": 0.9881944444444445,
+        "f1": 0.9940621725462802,
+        "support": 1440
+      },
+      "workflow_deadlock": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 1440
+      }
+    },
+    "macro_f1": 0.99851554313657,
+    "exact_match": 0.9929166666666667,
+    "n": 2400,
+    "by_composition": {
+      "data_corruption+queue_overflow": {
+        "exact_match": 0.9958333333333333,
+        "n": 480
+      },
+      "data_corruption+silent_dropper": {
+        "exact_match": 0.9833333333333333,
+        "n": 480
+      },
+      "data_corruption+workflow_deadlock": {
+        "exact_match": 0.9854166666666667,
+        "n": 480
+      },
+      "queue_overflow+workflow_deadlock": {
+        "exact_match": 1.0,
+        "n": 480
+      },
+      "silent_dropper+workflow_deadlock": {
+        "exact_match": 1.0,
+        "n": 480
+      }
+    }
+  },
+  "logs_main_model_logs_available": {
+    "per_head": {
+      "silent_dropper": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 1200
+      },
+      "queue_overflow": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 1200
+      },
+      "data_corruption": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 600
+      },
+      "workflow_deadlock": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 600
+      }
+    },
+    "macro_f1": 1.0,
+    "exact_match": 1.0,
+    "n": 3900
+  },
+  "logs_main_model_logs_missing": {
+    "per_head": {
+      "silent_dropper": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 1200
+      },
+      "queue_overflow": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 1200
+      },
+      "data_corruption": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 600
+      },
+      "workflow_deadlock": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 600
+      }
+    },
+    "macro_f1": 1.0,
+    "exact_match": 1.0,
+    "n": 3900
+  },
+  "logs_plain_model_logs_missing": {
+    "per_head": {
+      "silent_dropper": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 1200
+      },
+      "queue_overflow": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 1200
+      },
+      "data_corruption": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 600
+      },
+      "workflow_deadlock": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 600
+      }
+    },
+    "macro_f1": 0.75,
+    "exact_match": 0.8461538461538461,
+    "n": 3900
+  },
+  "logs_model_trained_without_logs": {
+    "per_head": {
+      "silent_dropper": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 1200
+      },
+      "queue_overflow": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 1200
+      },
+      "data_corruption": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 600
+      },
+      "workflow_deadlock": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 600
+      }
+    },
+    "macro_f1": 1.0,
+    "exact_match": 1.0,
+    "n": 3900
+  },
+  "novel_fault_payment_slowdown": {
+    "samples": 320,
+    "unhealthy_pct": 25.3125,
+    "fired_pct": {
+      "silent_dropper": 0.0,
+      "queue_overflow": 100.0,
+      "data_corruption": 0.0,
+      "workflow_deadlock": 0.0
+    },
+    "unhealthy_but_nothing_recognised_pct": 0.0
+  },
+  "detection_delay": {
+    "silent_dropper": {
+      "detected_pct": 100.0,
+      "median_ticks_to_confirm": 3.5,
+      "p90_ticks_to_confirm": 5.100000000000001,
+      "median_ticks_until_health_below_80": 9.5
+    },
+    "queue_overflow": {
+      "detected_pct": 100.0,
+      "median_ticks_to_confirm": 4.0,
+      "p90_ticks_to_confirm": 6.0,
+      "median_ticks_until_health_below_80": 19.0
+    },
+    "data_corruption": {
+      "detected_pct": 100.0,
+      "median_ticks_to_confirm": 12.0,
+      "p90_ticks_to_confirm": 12.0,
+      "median_ticks_until_health_below_80": 10.0
+    },
+    "workflow_deadlock": {
+      "detected_pct": 100.0,
+      "median_ticks_to_confirm": 8.0,
+      "p90_ticks_to_confirm": 8.0,
+      "median_ticks_until_health_below_80": 7.0
+    },
+    "silent_dropper+queue_overflow": {
+      "detected_pct": 100.0,
+      "median_ticks_to_confirm": 4.0,
+      "p90_ticks_to_confirm": 6.0,
+      "median_ticks_until_health_below_80": 6.0
+    }
+  },
+  "false_alarms": {
+    "shops": 100,
+    "ticks": 20000,
+    "raw_alarm_tick_pct": 0.0,
+    "shops_with_confirmed_false_alarm_pct": 0.0
+  },
+  "top_features": {
+    "silent_dropper": [
+      [
+        "mismatch_rate",
+        1.0
+      ],
+      [
+        "orders_per_second",
+        0.0
+      ],
+      [
+        "integrity_score",
+        0.0
+      ]
+    ],
+    "queue_overflow": [
+      [
+        "queue_saturation",
+        0.498
+      ],
+      [
+        "queue_depth",
+        0.441
+      ],
+      [
+        "orders_per_second",
+        0.062
+      ]
+    ],
+    "data_corruption": [
+      [
+        "integrity_score",
+        0.996
+      ],
+      [
+        "log_sync_warn",
+        0.004
+      ],
+      [
+        "orders_per_second",
+        0.0
+      ]
+    ],
+    "workflow_deadlock": [
+      [
+        "jobs_stuck",
+        0.653
+      ],
+      [
+        "stuck_duration",
+        0.202
+      ],
+      [
+        "jobs_pending",
+        0.145
+      ]
+    ]
+  },
+  "settings": {
+    "quick": false,
+    "confirm_ticks": 3,
+    "active_at": 0.5,
+    "train_ranges": {
+      "drop_rate": [
+        0.08,
+        0.3
+      ],
+      "traffic": [
+        2.0,
+        3.5
+      ],
+      "corruption": [
+        0.05,
+        0.12
+      ]
+    },
+    "heldout_ranges": {
+      "drop_rate": [
+        0.32,
+        0.5
+      ],
+      "traffic": [
+        3.6,
+        5.0
+      ],
+      "corruption": [
+        0.13,
+        0.2
+      ]
+    }
+  }
+}
